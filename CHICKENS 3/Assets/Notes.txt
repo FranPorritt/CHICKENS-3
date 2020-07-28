@@ -1,0 +1,14 @@
+// NOTES //
+
+-- Crops --
+* Need to adjust growth rate - too fast currently
+
+-- Chickens --
+* mapExtent within fenced area when gate closed
+* mapExtent whole map when gate open
+* Need to add gate check in Wandering() - if set position prior to gate closing, chicken will try get back in.
+
+
+** YOU ARE HERE **
+- Chicken will leave feeder once it's full but not when the feeder is empty
+- Open gate is causing a lot of issues. Chickens try run through it a lot. If they want food, are outside and the gate is shut they should just wait outside it?
