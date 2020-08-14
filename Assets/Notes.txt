@@ -13,6 +13,7 @@ FIND CLOSEST ENEMY - https://docs.unity3d.com/ScriptReference/GameObject.FindGam
 Could be used for foxes to find closest chicken!
 
 
-** YOU ARE HERE **
-- Chickens won't run to coop, should set this up like chickens 1? Array of vectors rather than game objects?
-- Open gate is causing a lot of issues. Chickens try run through it a lot. If they want food, are outside and the gate is shut they should just wait outside it?
+** YOU ARE HERE ** - Last Update: 14-08-2020
+- Chickens now lay eggs and a pop up tells the player they're ready to be collected.
+- After becoming full once and visiting a coop, chickens won't come back to eat from the feeder again. Is full not being set to false? is their hunger not going back down?
+- Open gate is causing issues. Chickens try run through it a lot. If they want food, are outside and the gate is shut they should just wait outside it?

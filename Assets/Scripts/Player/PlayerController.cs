@@ -4,26 +4,14 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private int cropAmount = 0;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    private int cropAmount = 50; // 50 for testing
+    private int eggAmount = 0;
 
     public int GetCropAmount() { return cropAmount; }
 
     public void AddCropsToInventory(int harvestedCrop)
     {
         cropAmount += harvestedCrop;
-        Debug.Log(cropAmount);
     }
 
     public void AddCropsToFeeder(int takeFromPlayer)
@@ -36,5 +24,11 @@ public class PlayerController : MonoBehaviour
         {
             cropAmount -= takeFromPlayer;
         }
+    }
+
+    public void AddEggsToInventory(int eggsCollected)
+    {
+        eggAmount += eggsCollected;
+        Debug.Log("PLAYERS EGG COUNT: " + eggAmount);
     }
 }

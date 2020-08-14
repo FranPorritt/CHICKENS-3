@@ -184,12 +184,12 @@ public class ChickenController : MonoBehaviour
                     break;
             }
 
-            Invoke("NeutralBehaviour", randomIdleTime); 
+            Invoke("NeutralBehaviour", randomIdleTime);
         }
     }
 
     private const int MIN_RANDOM_HUNGER_TIME = 7;   // Seconds
-    private const int MAX_RANDOM_HUNGER_TIME = 15;  
+    private const int MAX_RANDOM_HUNGER_TIME = 15;
     private void Hunger()
     {
         if (chickenState != ChickenState.Full) // Only takes hunger when not full so chickens don't immediately run to food after laying egg
@@ -257,8 +257,11 @@ public class ChickenController : MonoBehaviour
 
     private const float EGG_LAY_TIME = 2.0f;
     private bool hasCoopPos = false;
+    public bool inCoop = false; // Passed to coop to trigger egg
     private void Full() // Sets chickens target position to location of a random coop
     {
+        inCoop = true; // Lets coop know it's laying an egg and not randomly hitting it
+
         if (!hasCoopPos) // Prevents selecting a new coop before reaching target
         {
             Debug.Log("Chicken going to coop");
@@ -270,7 +273,6 @@ public class ChickenController : MonoBehaviour
         else if (agent.remainingDistance <= 0.1)
         {
             Debug.Log("EGG LAID!");
-            //agent.isStopped = true;
 
             Invoke("InCoop", EGG_LAY_TIME); // Calls in coop after 2 secs, ie. makes chicken wait in the coop for 2 seconds
         }
@@ -279,5 +281,7 @@ public class ChickenController : MonoBehaviour
     private void InCoop()
     {
         chickenState = ChickenState.Wandering;
+        RandomPosition();
+        inCoop = false;
     }
 }
