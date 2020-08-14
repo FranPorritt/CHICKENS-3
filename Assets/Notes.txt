@@ -9,6 +9,10 @@
 * Need to add gate check in Wandering() - if set position prior to gate closing, chicken will try get back in.
 
 
+FIND CLOSEST ENEMY - https://docs.unity3d.com/ScriptReference/GameObject.FindGameObjectsWithTag.html
+Could be used for foxes to find closest chicken!
+
+
 ** YOU ARE HERE **
-- Chicken will leave feeder once it's full but not when the feeder is empty
+- Chickens won't run to coop, should set this up like chickens 1? Array of vectors rather than game objects?
 - Open gate is causing a lot of issues. Chickens try run through it a lot. If they want food, are outside and the gate is shut they should just wait outside it?

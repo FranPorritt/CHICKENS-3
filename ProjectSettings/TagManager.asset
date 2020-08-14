@@ -12,6 +12,7 @@ TagManager:
   - fencedArea
   - Gate
   - Feeder
+  - Coop
   layers:
   - Default
   - TransparentFX

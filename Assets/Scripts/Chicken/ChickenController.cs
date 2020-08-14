@@ -8,25 +8,28 @@ enum ChickenState
     Idle,
     Wandering,
     GoingToFood,
+    Full,
+    InCoop,
 };
 
 public class ChickenController : MonoBehaviour
 {
+    [SerializeField]
+    private GameObject[] coops;
     private Gate gate;
     private GameObject feeder;
 
     private NavMeshAgent agent;
     private ChickenState chickenState = ChickenState.Wandering;
 
-    private float closedMapExtentX = 0f;
-    private float closedMapExtentZ = 0f;
-    private float openMapExtentX = 0f;
-    private float openMapExtentZ = 0f;
+    [SerializeField]
+    private GameObject closedMapExtents;
+    [SerializeField]
+    private GameObject openMapExtents;
 
     private const int MAX_HUNGER = 4; // How many crops chicken must eat to be full/lay egg
     private int currentHunger = 0;
-
-    private bool isFull = false;
+    private int maxCoops = 0;
 
     private bool isGateOpen = false;
     private bool lastGateState = false;
@@ -34,6 +37,7 @@ public class ChickenController : MonoBehaviour
 
     private void Awake()
     {
+        Random.InitState(System.DateTime.Now.Millisecond); // Sets seed
         agent = this.GetComponent<NavMeshAgent>();
     }
 
@@ -42,15 +46,18 @@ public class ChickenController : MonoBehaviour
     {
         gate = GameObject.FindGameObjectWithTag("Gate").GetComponent<Gate>();
         feeder = GameObject.FindGameObjectWithTag("Feeder");
+        maxCoops = coops.Length - 1; // Minus 1 so when choosing a random coop in Full() won't choose an element outside the array range.
 
-        closedMapExtentX = GameObject.FindGameObjectWithTag("gateClosed").transform.position.x;
-        closedMapExtentZ = GameObject.FindGameObjectWithTag("gateClosed").transform.position.z;
-        openMapExtentX = GameObject.FindGameObjectWithTag("gateOpen").transform.position.x;
-        openMapExtentZ = GameObject.FindGameObjectWithTag("gateOpen").transform.position.z;
-
+        // Invoke only calls function once after delay, use InvokeRepeating to continously call function after delay
         Invoke("NeutralBehaviour", 0.5f);   // Switches between wander/idle
         Invoke("Hunger", 0.5f);             // Decreases hunger level
         RandomPosition();
+
+        // Shows pos of coops
+        for (int coopTest = 0; coopTest < coops.Length; coopTest++)
+        {
+            Debug.Log("COOP " + coopTest + ": " + coops[coopTest].transform.position);
+        }
     }
 
     // Update is called once per frame
@@ -59,9 +66,13 @@ public class ChickenController : MonoBehaviour
         lastGateState = isGateOpen;
         isGateOpen = gate.GetGate();
 
-        if ((feeder.GetComponent<Feeder>().GetCrops()) && (currentHunger < MAX_HUNGER)) // If feeder has crops in it AND chicken is hungry
+        if ((feeder.GetComponent<Feeder>().GetCrops()) && (currentHunger < MAX_HUNGER) && (chickenState != ChickenState.Full)) // If feeder has crops in it AND chicken is hungry AND not going to a coop(full)
         {
             chickenState = ChickenState.GoingToFood;
+        }
+        else if (currentHunger == MAX_HUNGER)
+        {
+            chickenState = ChickenState.Full;
         }
 
         switch (chickenState)
@@ -78,6 +89,10 @@ public class ChickenController : MonoBehaviour
             case ChickenState.GoingToFood:
                 agent.isStopped = false;
                 GoingToFood();
+                break;
+
+            case ChickenState.Full:
+                Full();
                 break;
 
             default:
@@ -107,38 +122,38 @@ public class ChickenController : MonoBehaviour
 
         if (isGateOpen) // chicken can roam whole map
         {
-            randomPosition = new Vector3(Random.Range(-openMapExtentX, openMapExtentX), 0f, Random.Range(-openMapExtentZ, openMapExtentZ));
+            randomPosition = new Vector3(Random.Range(-openMapExtents.transform.position.x, openMapExtents.transform.position.x), 0f, Random.Range(-openMapExtents.transform.position.z, openMapExtents.transform.position.z));
         }
         else // gate is closed
         {
             if (inFencedArea)
             {
-                randomPosition = new Vector3(Random.Range(-closedMapExtentX, closedMapExtentX), 0f, Random.Range(-closedMapExtentZ, closedMapExtentZ));
+                randomPosition = new Vector3(Random.Range(-closedMapExtents.transform.position.x, closedMapExtents.transform.position.x), 0f, Random.Range(-closedMapExtents.transform.position.z, closedMapExtents.transform.position.z));
             }
             else // chicken can only roam outside fenced area
             {
-                float randX = Random.Range(-openMapExtentX, openMapExtentX); // Finds random x pos within whole map
+                float randX = Random.Range(-openMapExtents.transform.position.x, openMapExtents.transform.position.x); // Finds random x pos within whole map
                 float randZ = 0;
 
-                if ((randX <= closedMapExtentX) || (randX >= -closedMapExtentX)) // If random x pos is within fenced area
+                if ((randX <= closedMapExtents.transform.position.x) || (randX >= -closedMapExtents.transform.position.x)) // If random x pos is within fenced area
                 {
                     // Only use z pos outside of fenced area
                     int rand = Random.Range(0, 1);
 
                     if (rand == 0)
                     {
-                        randZ = Random.Range(-openMapExtentZ, -closedMapExtentZ); // Back of map
+                        randZ = Random.Range(-openMapExtents.transform.position.z, -closedMapExtents.transform.position.z); // Back of map
                     }
                     else
                     {
-                        randZ = Random.Range(closedMapExtentZ, openMapExtentZ); // Front of map (crops direction)
+                        randZ = Random.Range(closedMapExtents.transform.position.z, openMapExtents.transform.position.z); // Front of map (crops direction)
                     }
 
                     randomPosition = new Vector3(randX, 0f, randZ);
                 }
                 else
                 {
-                    randZ = Random.Range(-openMapExtentZ, openMapExtentZ);
+                    randZ = Random.Range(-openMapExtents.transform.position.z, openMapExtents.transform.position.z);
 
                     randomPosition = new Vector3(randX, 0f, randZ);
                 }
@@ -151,38 +166,45 @@ public class ChickenController : MonoBehaviour
     private const int MAX_RANDOM_IDLE_TIME = 4;
     private void NeutralBehaviour() // Controls rate of wandering/idle switches
     {
-        float randomIdleTime = Random.Range(0, MAX_RANDOM_IDLE_TIME);
-
-        switch (chickenState)
+        if (chickenState != ChickenState.Full)
         {
-            case ChickenState.Idle:
-                chickenState = ChickenState.Wandering;
-                break;
+            float randomIdleTime = Random.Range(0, MAX_RANDOM_IDLE_TIME);
 
-            case ChickenState.Wandering:
-                chickenState = ChickenState.Idle;
-                break;
+            switch (chickenState) // Only switches between Idle and Wandering
+            {
+                case ChickenState.Idle:
+                    chickenState = ChickenState.Wandering;
+                    break;
 
-            default:
-                break;
+                case ChickenState.Wandering:
+                    chickenState = ChickenState.Idle;
+                    break;
+
+                default:
+                    break;
+            }
+
+            Invoke("NeutralBehaviour", randomIdleTime); 
         }
-
-        Invoke("NeutralBehaviour", randomIdleTime);
     }
 
-    private const int MIN_RANDOM_HUNGER_TIME = 7;
-    private const int MAX_RANDOM_HUNGER_TIME = 15;
+    private const int MIN_RANDOM_HUNGER_TIME = 7;   // Seconds
+    private const int MAX_RANDOM_HUNGER_TIME = 15;  
     private void Hunger()
     {
-        float randomHungerTime = Random.Range(MIN_RANDOM_HUNGER_TIME, MAX_RANDOM_HUNGER_TIME);
-
-        if (currentHunger > 0)
+        if (chickenState != ChickenState.Full) // Only takes hunger when not full so chickens don't immediately run to food after laying egg
         {
-            currentHunger--;
-            Debug.Log("Chicken is hungry!");
-        }
+            float randomHungerTime = Random.Range(MIN_RANDOM_HUNGER_TIME, MAX_RANDOM_HUNGER_TIME);
 
-        Invoke("Hunger", randomHungerTime);
+            if (currentHunger > 0)
+            {
+                currentHunger--;
+                Debug.Log("Chicken is hungry!");
+            }
+            // WHAT HAPPENS WHEN REACHES 0, SHOULD MIN BE HIGHER SO THEY DON'T STARVE TO QUICK / HIGHER HUNGER (10 MAX RATHER THAN 4?)
+
+            Invoke("Hunger", randomHungerTime);
+        }
     }
 
     private void Wandering()
@@ -199,13 +221,12 @@ public class ChickenController : MonoBehaviour
         agent.SetDestination(newPos);
     }
 
+    //// Eating crops code ////
     private float startTime = 0f;
     private const float EAT_TIME = 1.0f;
 
-    private bool beenDone = false;
     public void EatStart()
     {
-        beenDone = false; // Chicken just entered trigger -- reset checks
         startTime = Time.time;
     }
 
@@ -215,25 +236,14 @@ public class ChickenController : MonoBehaviour
 
         if ((currentHunger == MAX_HUNGER)) // Chicken is full 
         {
-            if (!beenDone)
-            {
-                chickenState = ChickenState.Wandering; // TEMPORARY -- NEEDS TO BE LAY EGG
-                didEat = false;
-                RandomPosition();
-                beenDone = true;
-            }
+            chickenState = ChickenState.Full;
         }
         else if (!feeder.GetComponent<Feeder>().GetCrops()) // No crops left but still hungry
         {
-            if (!beenDone)
-            {
-                chickenState = ChickenState.Wandering; 
-                didEat = false;
-                RandomPosition();
-                beenDone = true;
-            }
+            chickenState = ChickenState.Wandering;
+            didEat = false;
         }
-        else if ((currentHunger < MAX_HUNGER) && (Time.time >= startTime + EAT_TIME)) // Chicken is hungry AND enough time has passed
+        else if ((currentHunger < MAX_HUNGER) && (Time.time >= startTime + EAT_TIME)) // Chicken is still hungry AND enough time has passed (eat rate)
         {
             currentHunger++;
             didEat = true;
@@ -242,5 +252,32 @@ public class ChickenController : MonoBehaviour
         }
 
         return didEat;
+    }
+    ///////////////////////////
+
+    private const float EGG_LAY_TIME = 2.0f;
+    private bool hasCoopPos = false;
+    private void Full() // Sets chickens target position to location of a random coop
+    {
+        if (!hasCoopPos) // Prevents selecting a new coop before reaching target
+        {
+            Debug.Log("Chicken going to coop");
+            int randomCoop = Random.Range(0, maxCoops);
+            GameObject targetCoop = coops[randomCoop];
+            agent.SetDestination(targetCoop.transform.position);
+            hasCoopPos = true;
+        }
+        else if (agent.remainingDistance <= 0.1)
+        {
+            Debug.Log("EGG LAID!");
+            //agent.isStopped = true;
+
+            Invoke("InCoop", EGG_LAY_TIME); // Calls in coop after 2 secs, ie. makes chicken wait in the coop for 2 seconds
+        }
+    }
+
+    private void InCoop()
+    {
+        chickenState = ChickenState.Wandering;
     }
 }

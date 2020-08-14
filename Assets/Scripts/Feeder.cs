@@ -7,6 +7,7 @@ public class Feeder : MonoBehaviour
 {
     private PlayerController player;
 
+    [SerializeField]
     private GameObject feederCrops;
     private float cropHeight = 0f;
 
@@ -21,7 +22,6 @@ public class Feeder : MonoBehaviour
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-        feederCrops = GameObject.FindGameObjectWithTag("FeederCrop");
     }
 
     // Update is called once per frame
@@ -104,7 +104,6 @@ public class Feeder : MonoBehaviour
         if (chicken.Eat()) // Did the chicken eat anything
         {
             cropAmount--;
-            Debug.Log("CROP AMOUNT: " + cropAmount);
         }
     }
 
