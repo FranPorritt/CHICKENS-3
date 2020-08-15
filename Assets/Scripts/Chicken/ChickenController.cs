@@ -22,12 +22,14 @@ public class ChickenController : MonoBehaviour
     private NavMeshAgent agent;
     private ChickenState chickenState = ChickenState.Wandering;
 
+    [Header("Map Extents")]
     [SerializeField]
     private GameObject closedMapExtents;
     [SerializeField]
     private GameObject openMapExtents;
 
-    private const int MAX_HUNGER = 4; // How many crops chicken must eat to be full/lay egg
+    [SerializeField]
+    private const int MAX_HUNGER = 6; // How many crops chicken must eat to be full/lay egg
     private int currentHunger = 0;
     private int maxCoops = 0;
 
@@ -108,7 +110,7 @@ public class ChickenController : MonoBehaviour
         }
     }
 
-    void OnTriggerExit(Collider other)
+    private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("fencedArea"))
         {
@@ -163,7 +165,8 @@ public class ChickenController : MonoBehaviour
         agent.SetDestination(randomPosition);
     }
 
-    private const int MAX_RANDOM_IDLE_TIME = 4;
+    [SerializeField]
+    private const int MAX_RANDOM_IDLE_TIME = 4; // How long between switching idle/wandering
     private void NeutralBehaviour() // Controls rate of wandering/idle switches
     {
         if (chickenState != ChickenState.Full)
@@ -188,23 +191,24 @@ public class ChickenController : MonoBehaviour
         }
     }
 
-    private const int MIN_RANDOM_HUNGER_TIME = 7;   // Seconds
-    private const int MAX_RANDOM_HUNGER_TIME = 15;
+    // Range of time chicken loses hunger
+    [Header("Hunger Time Range")]
+    [SerializeField]
+    private int MIN_RANDOM_HUNGER_TIME = 7;   
+    [SerializeField]
+    private int MAX_RANDOM_HUNGER_TIME = 15;
     private void Hunger()
     {
-        if (chickenState != ChickenState.Full) // Only takes hunger when not full so chickens don't immediately run to food after laying egg
+        float randomHungerTime = Random.Range(MIN_RANDOM_HUNGER_TIME, MAX_RANDOM_HUNGER_TIME);
+
+        if (currentHunger > 0)
         {
-            float randomHungerTime = Random.Range(MIN_RANDOM_HUNGER_TIME, MAX_RANDOM_HUNGER_TIME);
-
-            if (currentHunger > 0)
-            {
-                currentHunger--;
-                Debug.Log("Chicken is hungry!");
-            }
-            // WHAT HAPPENS WHEN REACHES 0, SHOULD MIN BE HIGHER SO THEY DON'T STARVE TO QUICK / HIGHER HUNGER (10 MAX RATHER THAN 4?)
-
-            Invoke("Hunger", randomHungerTime);
+            currentHunger--;
+            Debug.Log("Chicken is hungry!");
         }
+        // WHAT HAPPENS WHEN REACHES 0, SHOULD MIN BE HIGHER SO THEY DON'T STARVE TO QUICK / HIGHER HUNGER (10 MAX RATHER THAN 4?)
+
+        Invoke("Hunger", randomHungerTime);
     }
 
     private void Wandering()
@@ -221,9 +225,10 @@ public class ChickenController : MonoBehaviour
         agent.SetDestination(newPos);
     }
 
-    //// Eating crops code ////
+    // ~ Eating crops ~ //
     private float startTime = 0f;
-    private const float EAT_TIME = 1.0f;
+    [SerializeField]
+    private float EAT_TIME = 1.0f; // Time it takes the chicken to eat 1 crop
 
     public void EatStart()
     {
@@ -253,18 +258,21 @@ public class ChickenController : MonoBehaviour
 
         return didEat;
     }
-    ///////////////////////////
+    // ~ Eating crops END ~ //
 
-    private const float EGG_LAY_TIME = 2.0f;
+    // ~ Chicken Full and laying egg ~ //
+    [SerializeField]
+    private const float EGG_LAY_TIME = 2.0f; // Time it takes for chicken to lay egg (how long they're in the coop for)
     private bool hasCoopPos = false;
+    [HideInInspector]
     public bool inCoop = false; // Passed to coop to trigger egg
+
     private void Full() // Sets chickens target position to location of a random coop
     {
         inCoop = true; // Lets coop know it's laying an egg and not randomly hitting it
 
         if (!hasCoopPos) // Prevents selecting a new coop before reaching target
         {
-            Debug.Log("Chicken going to coop");
             int randomCoop = Random.Range(0, maxCoops);
             GameObject targetCoop = coops[randomCoop];
             agent.SetDestination(targetCoop.transform.position);
@@ -272,8 +280,6 @@ public class ChickenController : MonoBehaviour
         }
         else if (agent.remainingDistance <= 0.1)
         {
-            Debug.Log("EGG LAID!");
-
             Invoke("InCoop", EGG_LAY_TIME); // Calls in coop after 2 secs, ie. makes chicken wait in the coop for 2 seconds
         }
     }
@@ -283,5 +289,7 @@ public class ChickenController : MonoBehaviour
         chickenState = ChickenState.Wandering;
         RandomPosition();
         inCoop = false;
+        hasCoopPos = false; 
     }
+    // ~ Chicken Full and laying egg END ~ //
 }

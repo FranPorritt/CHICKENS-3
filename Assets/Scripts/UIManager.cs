@@ -8,7 +8,7 @@ public class UIManager : MonoBehaviour
     private PlayerController player;
 
     [SerializeField]
-    private Text cropsAmountText;
+    private Text cropsAmountText; // ALWAYS NULL - CAUSING ERROR IN CONSOLE
 
     // Start is called before the first frame update
     void Start()

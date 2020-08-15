@@ -30,7 +30,7 @@ public class Crops : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         crop = gameObject;
         startPos = crop.transform.position;
-        InvokeRepeating("Grow", 1f, 2f); // 1sc delay, repeat every 2s
+        InvokeRepeating("Grow", 1f, 3f); // 1sc delay, repeat every 3s
     }
 
     // Update is called once per frame
