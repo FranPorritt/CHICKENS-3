@@ -932,6 +932,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cropsAmountText: {fileID: 1515654505}
+--- !u!1 &412981376
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 412981377}
+  m_Layer: 0
+  m_Name: Foxes
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &412981377
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412981376}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1562940047}
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &505154214
 GameObject:
   m_ObjectHideFlags: 0
@@ -1110,7 +1141,7 @@ GameObject:
   - component: {fileID: 549306629}
   m_Layer: 0
   m_Name: Hole_A1
-  m_TagString: Untagged
+  m_TagString: FoxHoleInside
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 40
@@ -1137,10 +1168,10 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 549306627}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
-  m_Radius: 0.5000001
-  m_Height: 2
+  m_Radius: 0.75
+  m_Height: 10
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!23 &549306630
@@ -1640,6 +1671,36 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 0.6000006
       objectReference: {fileID: 0}
+    - target: {fileID: 2402730895673459875, guid: 19178ac877fe01145ab1f4e0b6d76689,
+        type: 3}
+      propertyPath: coops.Array.data[0]
+      value: 
+      objectReference: {fileID: 1204990308}
+    - target: {fileID: 2402730895673459875, guid: 19178ac877fe01145ab1f4e0b6d76689,
+        type: 3}
+      propertyPath: coops.Array.data[1]
+      value: 
+      objectReference: {fileID: 635773658}
+    - target: {fileID: 2402730895673459875, guid: 19178ac877fe01145ab1f4e0b6d76689,
+        type: 3}
+      propertyPath: coops.Array.data[2]
+      value: 
+      objectReference: {fileID: 1493845624}
+    - target: {fileID: 2402730895673459875, guid: 19178ac877fe01145ab1f4e0b6d76689,
+        type: 3}
+      propertyPath: coops.Array.data[3]
+      value: 
+      objectReference: {fileID: 589764867}
+    - target: {fileID: 2402730895673459875, guid: 19178ac877fe01145ab1f4e0b6d76689,
+        type: 3}
+      propertyPath: closedMapExtents
+      value: 
+      objectReference: {fileID: 157441871}
+    - target: {fileID: 2402730895673459875, guid: 19178ac877fe01145ab1f4e0b6d76689,
+        type: 3}
+      propertyPath: openMapExtents
+      value: 
+      objectReference: {fileID: 2024925721}
     - target: {fileID: 1716205477, guid: 19178ac877fe01145ab1f4e0b6d76689, type: 3}
       propertyPath: coops.Array.size
       value: 4
@@ -1665,36 +1726,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 157441871}
     - target: {fileID: 1716205477, guid: 19178ac877fe01145ab1f4e0b6d76689, type: 3}
-      propertyPath: openMapExtents
-      value: 
-      objectReference: {fileID: 2024925721}
-    - target: {fileID: 2402730895673459875, guid: 19178ac877fe01145ab1f4e0b6d76689,
-        type: 3}
-      propertyPath: coops.Array.data[0]
-      value: 
-      objectReference: {fileID: 1204990308}
-    - target: {fileID: 2402730895673459875, guid: 19178ac877fe01145ab1f4e0b6d76689,
-        type: 3}
-      propertyPath: coops.Array.data[1]
-      value: 
-      objectReference: {fileID: 635773658}
-    - target: {fileID: 2402730895673459875, guid: 19178ac877fe01145ab1f4e0b6d76689,
-        type: 3}
-      propertyPath: coops.Array.data[2]
-      value: 
-      objectReference: {fileID: 1493845624}
-    - target: {fileID: 2402730895673459875, guid: 19178ac877fe01145ab1f4e0b6d76689,
-        type: 3}
-      propertyPath: coops.Array.data[3]
-      value: 
-      objectReference: {fileID: 589764867}
-    - target: {fileID: 2402730895673459875, guid: 19178ac877fe01145ab1f4e0b6d76689,
-        type: 3}
-      propertyPath: closedMapExtents
-      value: 
-      objectReference: {fileID: 157441871}
-    - target: {fileID: 2402730895673459875, guid: 19178ac877fe01145ab1f4e0b6d76689,
-        type: 3}
       propertyPath: openMapExtents
       value: 
       objectReference: {fileID: 2024925721}
@@ -1916,6 +1947,11 @@ PrefabInstance:
       propertyPath: openMapExtents
       value: 
       objectReference: {fileID: 2024925721}
+    - target: {fileID: 195960701984481772, guid: 19178ac877fe01145ab1f4e0b6d76689,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 19178ac877fe01145ab1f4e0b6d76689, type: 3}
 --- !u!1 &989116279
@@ -2518,9 +2554,10 @@ GameObject:
   - component: {fileID: 1225455558}
   - component: {fileID: 1225455557}
   - component: {fileID: 1225455556}
+  - component: {fileID: 1225455559}
   m_Layer: 0
   m_Name: Hole_A2
-  m_TagString: Untagged
+  m_TagString: FoxHoleOutside
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2547,10 +2584,10 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1225455554}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
-  m_Radius: 0.5000001
-  m_Height: 2
+  m_Radius: 0.75
+  m_Height: 10
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!23 &1225455557
@@ -2598,6 +2635,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1225455554}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1225455559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1225455554}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 746ff8e1c8b9740428901d0c939b9dfe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  holePair: {fileID: 549306627}
 --- !u!1 &1272871951
 GameObject:
   m_ObjectHideFlags: 0
@@ -2832,7 +2882,7 @@ GameObject:
   - component: {fileID: 1380378051}
   m_Layer: 0
   m_Name: Hole_B2
-  m_TagString: Untagged
+  m_TagString: FoxHoleOutside
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2859,10 +2909,10 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1380378049}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
-  m_Radius: 0.5000001
-  m_Height: 2
+  m_Radius: 0.75
+  m_Height: 10
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!23 &1380378052
@@ -3095,6 +3145,12 @@ RectTransform:
   m_AnchoredPosition: {x: -447, y: 325}
   m_SizeDelta: {x: 230, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!4 &1562940047 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 708199323049002888, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+    type: 3}
+  m_PrefabInstance: {fileID: 708199323806635271}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1627544752
 GameObject:
   m_ObjectHideFlags: 0
@@ -3244,7 +3300,7 @@ GameObject:
   - component: {fileID: 1713876517}
   m_Layer: 0
   m_Name: Hole_B1
-  m_TagString: Untagged
+  m_TagString: FoxHoleInside
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 40
@@ -3271,10 +3327,10 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1713876515}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
-  m_Radius: 0.5000001
-  m_Height: 2
+  m_Radius: 0.75
+  m_Height: 10
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!23 &1713876518
@@ -3817,6 +3873,125 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 973304314}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &708199323806635271
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 412981377}
+    m_Modifications:
+    - target: {fileID: 708199323049002895, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_Name
+      value: Fox
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002895, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_TagString
+      value: Fox
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002895, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002888, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 17.55
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002888, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.62
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002888, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 7.83
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002888, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002888, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002888, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002888, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002888, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002888, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002888, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002888, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002893, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002894, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_StoppingDistance
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002894, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_AutoTraverseOffMeshLink
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002894, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: m_AutoRepath
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 708199323049002892, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: foxHolesInside.Array.data[0]
+      value: 
+      objectReference: {fileID: 549306627}
+    - target: {fileID: 708199323049002892, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: foxHolesInside.Array.data[1]
+      value: 
+      objectReference: {fileID: 1713876515}
+    - target: {fileID: 708199323049002892, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: foxHolesOutside.Array.data[0]
+      value: 
+      objectReference: {fileID: 1225455554}
+    - target: {fileID: 708199323049002892, guid: 3f55ac18aa761534ea7c75a6ef99607a,
+        type: 3}
+      propertyPath: foxHolesOutside.Array.data[1]
+      value: 
+      objectReference: {fileID: 1380378049}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 3f55ac18aa761534ea7c75a6ef99607a, type: 3}
 --- !u!1001 &2789037801991389382
 PrefabInstance:
   m_ObjectHideFlags: 0

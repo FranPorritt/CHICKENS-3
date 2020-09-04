@@ -13,6 +13,10 @@ TagManager:
   - Gate
   - Feeder
   - Coop
+  - FoxHoleInside
+  - FoxHoleOutside
+  - Teleport
+  - Fox
   layers:
   - Default
   - TransparentFX
