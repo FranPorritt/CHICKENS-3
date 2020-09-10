@@ -10,11 +10,11 @@ enum ChickenState
     GoingToFood,
     Full,
     InCoop,
+    Fleeing,
 };
 
 public class ChickenController : MonoBehaviour
 {
-    [SerializeField]
     private GameObject[] coops;
     private Gate gate;
     private GameObject feeder;
@@ -22,11 +22,20 @@ public class ChickenController : MonoBehaviour
     private NavMeshAgent agent;
     private ChickenState chickenState = ChickenState.Wandering;
 
+    private PlayerController player;
+    private GameController gameController;
+
+    private GameObject fleeObject; // Stores object chicken is fleeing from
+    [SerializeField]
+    private int fleeSpeed = 7;
+    [SerializeField]
+    private int speed = 5;
+
     [Header("Map Extents")]
     [SerializeField]
-    private GameObject closedMapExtents;
+    private Vector3 closedMapExtents;
     [SerializeField]
-    private GameObject openMapExtents;
+    private Vector3 openMapExtents;
 
     [SerializeField]
     private const int MAX_HUNGER = 6; // How many crops chicken must eat to be full/lay egg
@@ -41,6 +50,9 @@ public class ChickenController : MonoBehaviour
     {
         Random.InitState(System.DateTime.Now.Millisecond); // Sets seed
         agent = this.GetComponent<NavMeshAgent>();
+        agent.speed = speed;
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        gameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
     }
 
     // Start is called before the first frame update
@@ -48,18 +60,13 @@ public class ChickenController : MonoBehaviour
     {
         gate = GameObject.FindGameObjectWithTag("Gate").GetComponent<Gate>();
         feeder = GameObject.FindGameObjectWithTag("Feeder");
+        coops = gameController.GetCoops(); // Coop pos' stored in game controller due to instantiating chickens 
         maxCoops = coops.Length - 1; // Minus 1 so when choosing a random coop in Full() won't choose an element outside the array range.
 
         // Invoke only calls function once after delay, use InvokeRepeating to continously call function after delay
         Invoke("NeutralBehaviour", 0.5f);   // Switches between wander/idle
         Invoke("Hunger", 0.5f);             // Decreases hunger level
         RandomPosition();
-
-        // Shows pos of coops
-        for (int coopTest = 0; coopTest < coops.Length; coopTest++)
-        {
-            Debug.Log("COOP " + coopTest + ": " + coops[coopTest].transform.position);
-        }
     }
 
     // Update is called once per frame
@@ -97,6 +104,11 @@ public class ChickenController : MonoBehaviour
                 Full();
                 break;
 
+            case ChickenState.Fleeing:
+                agent.isStopped = false;
+                Flee();
+                break;
+
             default:
                 break;
         }
@@ -108,6 +120,11 @@ public class ChickenController : MonoBehaviour
         {
             inFencedArea = true;
         }
+        else if ((other.CompareTag("Player")) || (other.CompareTag("Fox")))
+        {
+            chickenState = ChickenState.Fleeing;
+            fleeObject = other.gameObject; // Tells chicken what it's running from
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -115,6 +132,11 @@ public class ChickenController : MonoBehaviour
         if (other.CompareTag("fencedArea"))
         {
             inFencedArea = false;
+        }
+        else if ((other.CompareTag("Player")) || (other.CompareTag("Fox")))
+        {
+            chickenState = ChickenState.Wandering;
+            agent.speed = speed; // Resets speed from flee speed
         }
     }
 
@@ -124,38 +146,38 @@ public class ChickenController : MonoBehaviour
 
         if (isGateOpen) // chicken can roam whole map
         {
-            randomPosition = new Vector3(Random.Range(-openMapExtents.transform.position.x, openMapExtents.transform.position.x), 0f, Random.Range(-openMapExtents.transform.position.z, openMapExtents.transform.position.z));
+            randomPosition = new Vector3(Random.Range(-openMapExtents.x, openMapExtents.x), 0f, Random.Range(-openMapExtents.z, openMapExtents.z));
         }
         else // gate is closed
         {
             if (inFencedArea)
             {
-                randomPosition = new Vector3(Random.Range(-closedMapExtents.transform.position.x, closedMapExtents.transform.position.x), 0f, Random.Range(-closedMapExtents.transform.position.z, closedMapExtents.transform.position.z));
+                randomPosition = new Vector3(Random.Range(-closedMapExtents.x, closedMapExtents.x), 0f, Random.Range(-closedMapExtents.z, closedMapExtents.z));
             }
             else // chicken can only roam outside fenced area
             {
-                float randX = Random.Range(-openMapExtents.transform.position.x, openMapExtents.transform.position.x); // Finds random x pos within whole map
+                float randX = Random.Range(-openMapExtents.x, openMapExtents.x); // Finds random x pos within whole map
                 float randZ = 0;
 
-                if ((randX <= closedMapExtents.transform.position.x) || (randX >= -closedMapExtents.transform.position.x)) // If random x pos is within fenced area
+                if ((randX <= closedMapExtents.x) || (randX >= -closedMapExtents.x)) // If random x pos is within fenced area
                 {
                     // Only use z pos outside of fenced area
                     int rand = Random.Range(0, 1);
 
                     if (rand == 0)
                     {
-                        randZ = Random.Range(-openMapExtents.transform.position.z, -closedMapExtents.transform.position.z); // Back of map
+                        randZ = Random.Range(-openMapExtents.z, -closedMapExtents.z); // Back of map
                     }
                     else
                     {
-                        randZ = Random.Range(closedMapExtents.transform.position.z, openMapExtents.transform.position.z); // Front of map (crops direction)
+                        randZ = Random.Range(closedMapExtents.z, openMapExtents.z); // Front of map (crops direction)
                     }
 
                     randomPosition = new Vector3(randX, 0f, randZ);
                 }
                 else
                 {
-                    randZ = Random.Range(-openMapExtents.transform.position.z, openMapExtents.transform.position.z);
+                    randZ = Random.Range(-openMapExtents.z, openMapExtents.z);
 
                     randomPosition = new Vector3(randX, 0f, randZ);
                 }
@@ -194,7 +216,7 @@ public class ChickenController : MonoBehaviour
     // Range of time chicken loses hunger
     [Header("Hunger Time Range")]
     [SerializeField]
-    private int MIN_RANDOM_HUNGER_TIME = 7;   
+    private int MIN_RANDOM_HUNGER_TIME = 7;
     [SerializeField]
     private int MAX_RANDOM_HUNGER_TIME = 15;
     private void Hunger()
@@ -289,7 +311,16 @@ public class ChickenController : MonoBehaviour
         chickenState = ChickenState.Wandering;
         RandomPosition();
         inCoop = false;
-        hasCoopPos = false; 
+        hasCoopPos = false;
     }
     // ~ Chicken Full and laying egg END ~ //
+
+    private void Flee()
+    {
+        Vector3 dirToFlee = transform.position - fleeObject.transform.position;
+        Vector3 fleePos = transform.position + dirToFlee;
+
+        agent.speed = fleeSpeed;
+        agent.SetDestination(fleePos);
+    }
 }
