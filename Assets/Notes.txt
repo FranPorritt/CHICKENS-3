@@ -3,22 +3,15 @@
 -- Crops --
 * Need to adjust growth rate - too fast currently
 
--- Chickens --
-* mapExtent within fenced area when gate closed
-* mapExtent whole map when gate open
-* Need to add gate check in Wandering() - if set position prior to gate closing, chicken will try get back in.
-
-
 FIND CLOSEST ENEMY - https://docs.unity3d.com/ScriptReference/GameObject.FindGameObjectsWithTag.html
 Could be used for foxes to find closest chicken!
 
 
-** YOU ARE HERE ** - Last Update: 10-09-2020
-- Issue with fox. Won't teleport between holes, will teleport to 0,0,0 when controlled by key press but still breaks when on collision.
-- Fox just will not teleport within the fencedArea ?????????????????????? >:(
-- Fox issue with hunt/flee. Think it's getting stuck on hasTarget, just moves back and forth. Maybe something to with the OnTrigger stuff???
+** YOU ARE HERE ** - Last Update: 12-09-2020
+- Chickens all seem to be trying to leave via the gate even tho it's shut. Check fencedArea stuff and make sure it's running the right code. Also all
+seem to be heading to roughly same pos, want more variation.
 - Open gate is causing issues. Chickens try run through it a lot. If they want food, are outside and the gate is shut they should just wait outside it?
 
-** TO DO ** - 04-09-2020
-- Chicken fleeing from everything except other chickens
+** TO DO ** - 12-09-2020
 - Foxes can come in through gate
+- Fix chickens trying to get out closed gate

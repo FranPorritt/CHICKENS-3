@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -322,5 +323,12 @@ public class ChickenController : MonoBehaviour
 
         agent.speed = fleeSpeed;
         agent.SetDestination(fleePos);
+    }
+
+    public void Kill()
+    {
+        gameController.ChickenDeath(this.gameObject);
+        //Destroy(this);
+        this.gameObject.SetActive(false);
     }
 }

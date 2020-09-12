@@ -48,4 +48,17 @@ public class GameController : MonoBehaviour
     {
         return coops;
     }
+
+    public void ChickenDeath(GameObject deadChick)
+    {
+        foreach (GameObject chick in chickenList)
+        {
+            if (chick == deadChick)
+            {
+                chickenList.Remove(chick);
+                NumberOfChickens--;
+                break;
+            }
+        }
+    }
 }

@@ -7,6 +7,8 @@ using UnityEngine.AI;
 
 enum FoxState
 {
+    Idle,
+    Teleporting,
     Outside,
     Hunting,
     Fleeing,
@@ -27,10 +29,19 @@ public class FoxController : MonoBehaviour
 
     private NavMeshAgent agent;
     private FoxState foxState = FoxState.Outside;
+    
+    [Header("Speed")]
+    [SerializeField]
+    private float speed = 5.0f;
+    [SerializeField]
+    private float fleeSpeed = 7.0f;
 
     private List<GameObject> chickenList;
     private GameObject chickenTarget;
     private bool hasTarget = false;
+
+    private GameObject currentHoleTarget;
+    private bool inArea = false;
 
     // Start is called before the first frame update
     void Awake()
@@ -43,24 +54,44 @@ public class FoxController : MonoBehaviour
     private void Start()
     {
         rb = this.GetComponent<Rigidbody>();
+        agent.speed = speed;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if ((inArea) && (foxState == FoxState.Idle))
+        {
+            foxState = FoxState.Hunting;
+        }
+        else if ((!inArea) && (foxState != FoxState.Teleporting))
+        {
+            foxState = FoxState.Outside;
+        }
+
         switch (foxState)
         {
+            case FoxState.Idle:
+                break;
+
+            case FoxState.Teleporting:
+                Teleport();
+                break;
+
             case FoxState.Outside:
+                agent.speed = speed;
                 FindHole();
                 break;
 
             case FoxState.Hunting:
+                agent.speed = speed;
                 Hunt();
                 break;
 
             case FoxState.Fleeing:
-                Flee();
+                agent.speed = fleeSpeed;
                 hasTarget = false;
+                Flee();
                 break;
 
             default:
@@ -70,70 +101,96 @@ public class FoxController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other) // should be collision changed to trigger for debugging
     {
-        if (other.CompareTag("FoxHoleOutside"))
-        {
-            for (int holeIndex = 0; holeIndex < 1; holeIndex++)
-            {
-                if (other == foxHolesOutside[holeIndex]) // Finds which hole in the array
-                {
-                    transform.position = foxHolesInside[holeIndex].transform.position; // Sets fox position to matching hole inside fenced area
-                }
-            }
-        }
-
         if (other.CompareTag("Player"))
         {
             foxState = FoxState.Fleeing;
         }
         else if (other.CompareTag("fencedArea"))
         {
-            foxState = FoxState.Hunting;
+            inArea = true;
         }
     }
 
-    void FindHole()
+    private void OnTriggerExit(Collider other)
     {
-        float smallestDistance = 0;
-        int closestHole = 0;
-
-        for (int distanceIndex = 0; distanceIndex < 1; distanceIndex++) // Magic num
+        if (other.CompareTag("Player"))
         {
-            float distance = Vector3.Distance(transform.position, foxHolesOutside[distanceIndex].transform.position);
+            foxState = FoxState.Idle;
+        }
+        if (other.CompareTag("fencedArea"))
+        {
+            inArea = false;
+        }
+    }
 
-            if (distanceIndex == 0) // If it's the first loop meaning smallest distance DOES NOT have a value yet. Will always run the first loop
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Chicken"))
+        {
+            Eat(collision.gameObject);
+        }       
+
+        if (collision.gameObject.CompareTag("FoxHoleOutside"))
+        {   
+            for (int holeIndex = 0; holeIndex < foxHolesOutside.Length; holeIndex++)
             {
-                smallestDistance = distance;
-                closestHole = distanceIndex; // Stores pos within array
+                if (collision.gameObject == foxHolesOutside[holeIndex]) // Finds which hole in the array
+                {
+                    currentHoleTarget = foxHolesInside[holeIndex];
+                    foxState = FoxState.Teleporting;
+                }
             }
-            else if (distance < smallestDistance) // If it's not the first loop so smallest distance DOES has a value. Only runs if the new distance is smaller
+        }
+    }
+
+    private void Teleport()
+    {
+        agent.enabled = false;
+        transform.position = new Vector3(currentHoleTarget.transform.position.x, currentHoleTarget.transform.position.y + 0.5f, currentHoleTarget.transform.position.z); // Sets fox position to matching hole inside fenced area
+
+        if (inArea) // Checks fox has teleported
+        {
+            agent.enabled = true;
+            foxState = FoxState.Idle;
+        }
+    }
+
+    private void FindHole()
+    {
+        float smallestDistance = Mathf.Infinity;
+        
+        foreach(GameObject hole in foxHolesOutside)
+        {
+            float distance = Vector3.Distance(transform.position, hole.transform.position);
+
+            if (distance < smallestDistance)
             {
                 smallestDistance = distance;
-                closestHole = distanceIndex;
+                currentHoleTarget = hole;
             }            
         }
 
-        agent.SetDestination(foxHolesOutside[closestHole].transform.position);
+        agent.SetDestination(currentHoleTarget.transform.position);
+    }
+
+    private void Eat(GameObject chicken)
+    {
+        hasTarget = false;
+        chicken.GetComponent<ChickenController>().Kill(); // Disables chicken obj and removes it from chickenList in gameController
     }
 
     private void Hunt()
     {
         if (!hasTarget) // Doesn't have a chicken yet
         {
-            // Find closest chicken //
-
-            float closestDistance = 0;
+            float closestDistance = Mathf.Infinity;
             chickenList = gameController.GetChickenList(); // Gets each time state switches to hunting in case a chicken has been ate
 
             foreach(GameObject chick in chickenList)
             {
                 float distance = Vector3.Distance(transform.position, chick.transform.position);
 
-                if (closestDistance == 0) // If it's the first loop meaning closest distance DOES NOT have a value yet. Will always run the first loop
-                {
-                    closestDistance = distance;
-                    chickenTarget = chick;
-                }
-                else if (distance < closestDistance) // If it's not the first loop so closest distance DOES has a value. Only runs if the new distance is smaller
+                if (distance < closestDistance)
                 {
                     closestDistance = distance;
                     chickenTarget = chick;
