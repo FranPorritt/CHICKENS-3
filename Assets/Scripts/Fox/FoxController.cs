@@ -8,16 +8,17 @@ using UnityEngine.AI;
 enum FoxState
 {
     Idle,
-    Teleporting,
-    Outside,
-    Hunting,
-    Fleeing,
+    Outside,        // Trying to get in fenced area
+    Hunting,        // Chasing a chicken
+    Fleeing,        // Running from player
+    Leaving,        // Leaving fenced area
 };
 
 public class FoxController : MonoBehaviour
 {
     private PlayerController player;
     private GameController gameController;
+    private GameObject fox;
 
     private Rigidbody rb;
 
@@ -26,6 +27,9 @@ public class FoxController : MonoBehaviour
     private GameObject[] foxHolesInside;
     [SerializeField]
     private GameObject[] foxHolesOutside;
+
+    private GameObject[] entryPoints;
+    private bool hasLeavingTarget = false;
 
     private NavMeshAgent agent;
     private FoxState foxState = FoxState.Outside;
@@ -53,7 +57,9 @@ public class FoxController : MonoBehaviour
 
     private void Start()
     {
+        fox = this.gameObject;
         rb = this.GetComponent<Rigidbody>();
+        entryPoints = gameController.GetEntryPoints();
         agent.speed = speed;
     }
 
@@ -64,23 +70,15 @@ public class FoxController : MonoBehaviour
         {
             foxState = FoxState.Hunting;
         }
-        else if ((!inArea) && (foxState != FoxState.Teleporting))
-        {
-            foxState = FoxState.Outside;
-        }
 
         switch (foxState)
         {
             case FoxState.Idle:
                 break;
 
-            case FoxState.Teleporting:
-                Teleport();
-                break;
-
             case FoxState.Outside:
                 agent.speed = speed;
-                FindHole();
+                FindEntryHole();
                 break;
 
             case FoxState.Hunting:
@@ -92,6 +90,11 @@ public class FoxController : MonoBehaviour
                 agent.speed = fleeSpeed;
                 hasTarget = false;
                 Flee();
+                break;
+
+            case FoxState.Leaving:
+                agent.speed = speed;
+                Leave();
                 break;
 
             default:
@@ -108,6 +111,14 @@ public class FoxController : MonoBehaviour
         else if (other.CompareTag("fencedArea"))
         {
             inArea = true;
+        }
+        else if (other.CompareTag("Boundary"))
+        { // If hitting a boundary and trying to leave play area
+            if (hasLeavingTarget)
+            {
+                Debug.Log("BOUNDARY");
+                Destroy(fox);
+            }
         }
     }
 
@@ -130,14 +141,27 @@ public class FoxController : MonoBehaviour
             Eat(collision.gameObject);
         }       
 
-        if (collision.gameObject.CompareTag("FoxHoleOutside"))
+        if ((collision.gameObject.CompareTag("FoxHoleOutside")) && (foxState != FoxState.Leaving))
         {   
             for (int holeIndex = 0; holeIndex < foxHolesOutside.Length; holeIndex++)
             {
                 if (collision.gameObject == foxHolesOutside[holeIndex]) // Finds which hole in the array
                 {
                     currentHoleTarget = foxHolesInside[holeIndex];
-                    foxState = FoxState.Teleporting;
+                    Teleport();
+                    foxState = FoxState.Idle;
+                }
+            }
+        }
+        else if ((collision.gameObject.CompareTag("FoxHoleInside")) && (foxState == FoxState.Leaving))
+        {
+            for (int holeIndex = 0; holeIndex < foxHolesInside.Length; holeIndex++)
+            {
+                if (collision.gameObject == foxHolesInside[holeIndex]) // Finds which hole in the array
+                {
+                    currentHoleTarget = foxHolesOutside[holeIndex];
+                    Teleport();
+                    foxState = FoxState.Leaving;
                 }
             }
         }
@@ -146,16 +170,12 @@ public class FoxController : MonoBehaviour
     private void Teleport()
     {
         agent.enabled = false;
-        transform.position = new Vector3(currentHoleTarget.transform.position.x, currentHoleTarget.transform.position.y + 0.5f, currentHoleTarget.transform.position.z); // Sets fox position to matching hole inside fenced area
-
-        if (inArea) // Checks fox has teleported
-        {
-            agent.enabled = true;
-            foxState = FoxState.Idle;
-        }
+        transform.position = new Vector3(currentHoleTarget.transform.position.x, currentHoleTarget.transform.position.y + 1f, currentHoleTarget.transform.position.z); // Sets fox position to matching hole inside fenced area
+        
+        agent.enabled = true;
     }
 
-    private void FindHole()
+    private void FindEntryHole()
     {
         float smallestDistance = Mathf.Infinity;
         
@@ -173,10 +193,29 @@ public class FoxController : MonoBehaviour
         agent.SetDestination(currentHoleTarget.transform.position);
     }
 
+    private void FindExitHole()
+    {
+        float smallestDistance = Mathf.Infinity;
+
+        foreach (GameObject hole in foxHolesInside)
+        {
+            float distance = Vector3.Distance(transform.position, hole.transform.position);
+
+            if (distance < smallestDistance)
+            {
+                smallestDistance = distance;
+                currentHoleTarget = hole;
+            }
+        }
+
+        agent.SetDestination(currentHoleTarget.transform.position);
+    }
+
     private void Eat(GameObject chicken)
     {
         hasTarget = false;
         chicken.GetComponent<ChickenController>().Kill(); // Disables chicken obj and removes it from chickenList in gameController
+        foxState = FoxState.Leaving;
     }
 
     private void Hunt()
@@ -196,9 +235,8 @@ public class FoxController : MonoBehaviour
                     chickenTarget = chick;
                 }
             }
-
-            hasTarget = true;
         }
+        hasTarget = true;
         agent.SetDestination(chickenTarget.transform.position);
     }
 
@@ -208,5 +246,30 @@ public class FoxController : MonoBehaviour
         Vector3 fleePos = transform.position + dirToFlee;
 
         agent.SetDestination(fleePos);
+    }
+
+    private void Leave()
+    {
+        if (inArea)
+        {
+            FindExitHole();
+        }
+        else if (!hasLeavingTarget) // Is heading to an entry/exit point outside boundary
+        {
+            float closestDistance = Mathf.Infinity;
+            Vector3 targetPos = new Vector3(0,0,0);
+            foreach (GameObject point in entryPoints)
+            {
+                float distance = Vector3.Distance(transform.position, point.transform.position);
+
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    targetPos = point.transform.position;
+                }
+            }
+            hasLeavingTarget = true; // NEEDS RESETTING WHEN AT TARGET
+            agent.SetDestination(targetPos);
+        }
     }
 }

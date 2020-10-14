@@ -18,6 +18,8 @@ public class GameController : MonoBehaviour
 
     [SerializeField]
     private GameObject[] coops;
+    [SerializeField]
+    private GameObject[] entryPoints;
 
     // Start is called before the first frame update
     void Awake()
@@ -33,12 +35,6 @@ public class GameController : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public List<GameObject> GetChickenList()
     {
         return chickenList;
@@ -47,6 +43,11 @@ public class GameController : MonoBehaviour
     public GameObject[] GetCoops()
     {
         return coops;
+    }
+
+    public GameObject[] GetEntryPoints()
+    {
+        return entryPoints;
     }
 
     public void ChickenDeath(GameObject deadChick)

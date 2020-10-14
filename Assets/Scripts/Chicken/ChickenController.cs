@@ -16,15 +16,15 @@ enum ChickenState
 
 public class ChickenController : MonoBehaviour
 {
+    private PlayerController player;
+    private GameController gameController;
+
     private GameObject[] coops;
     private Gate gate;
     private GameObject feeder;
 
     private NavMeshAgent agent;
     private ChickenState chickenState = ChickenState.Wandering;
-
-    private PlayerController player;
-    private GameController gameController;
 
     private GameObject fleeObject; // Stores object chicken is fleeing from
     [SerializeField]
@@ -73,8 +73,7 @@ public class ChickenController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        lastGateState = isGateOpen;
-        isGateOpen = gate.GetGate();
+        CheckGateState(); // Checks if gate is open or closed
 
         if ((feeder.GetComponent<Feeder>().GetCrops()) && (currentHunger < MAX_HUNGER) && (chickenState != ChickenState.Full)) // If feeder has crops in it AND chicken is hungry AND not going to a coop(full)
         {
@@ -121,7 +120,8 @@ public class ChickenController : MonoBehaviour
         {
             inFencedArea = true;
         }
-        else if ((other.CompareTag("Player")) || (other.CompareTag("Fox")))
+        
+        if ((other.CompareTag("Player")) || (other.CompareTag("Fox")))
         {
             chickenState = ChickenState.Fleeing;
             fleeObject = other.gameObject; // Tells chicken what it's running from
@@ -139,6 +139,12 @@ public class ChickenController : MonoBehaviour
             chickenState = ChickenState.Wandering;
             agent.speed = speed; // Resets speed from flee speed
         }
+    }
+
+    private void CheckGateState()
+    {
+        lastGateState = isGateOpen;
+        isGateOpen = gate.GetGate();
     }
 
     private void RandomPosition()
@@ -184,7 +190,6 @@ public class ChickenController : MonoBehaviour
                 }
             }
         }
-
         agent.SetDestination(randomPosition);
     }
 

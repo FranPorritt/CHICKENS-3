@@ -6,15 +6,17 @@ public class Gate : MonoBehaviour
 {
 
     // Smoothly open a door
-    public float doorOpenAngle = 90.0f; //Set either positive or negative number to open the door inwards or outwards
-    public float openSpeed = 2.0f; //Increasing this value will make the door open faster
+    [SerializeField]
+    private float doorOpenAngle = 90.0f; //Set either positive or negative number to open the door inwards or outwards
+    [SerializeField]
+    private float openSpeed = 2.0f; //Increasing this value will make the door open faster
 
-    bool isOpen = false;
-    bool isPlayerInArea = false;
+    private bool isOpen = false;
+    private bool isPlayerInArea = false;
 
-    float defaultRotationAngle;
-    float currentRotationAngle;
-    float openTime = 0;
+    private  float defaultRotationAngle;
+    private float currentRotationAngle;
+    private float openTime = 0;
 
     void Start()
     {

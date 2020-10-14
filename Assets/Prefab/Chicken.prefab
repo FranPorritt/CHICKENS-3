@@ -1420,13 +1420,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce20d6fcf525c9944b2e0ce406655c8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coops:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   fleeSpeed: 9
-  speed: 5
+  speed: 3
   closedMapExtents: {x: 15, y: 0, z: 5}
   openMapExtents: {x: 30, y: 0, z: 25}
   MIN_RANDOM_HUNGER_TIME: 7
